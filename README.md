@@ -39,6 +39,15 @@ The script uses the `logging` module to log messages. Logs will be displayed in 
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
+## Planned Features
+- Configuration file support
+- Undo functionality
+- Preview mode
+- Progress bars
+- Recursive option
+- Better console UI
+- Command-line arguments
+
 ## License
 
 This project is licensed under the MIT License.
