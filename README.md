@@ -14,7 +14,7 @@ A Python utility to organize files in a directory based on various criteria like
 
 ```bash
 # Clone the repository
-git clone https://github.com/lazar-kostic/file-organizer.git
+git clone https://github.com/lazar-kostic/clutter-cutter.git
 cd file-organizer
 
 # Install dependencies
