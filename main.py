@@ -1,6 +1,6 @@
 # Libraries
-import logging
-from os.path import isfile
+import logging, os
+from os.path import isfile, join
 from os import listdir
 
 # Modules
