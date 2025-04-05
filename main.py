@@ -23,7 +23,7 @@ if __name__ == '__main__':
     if folder == '':
         exit(1)
 
-    files = [f for f in listdir(folder) if isfile(folder + '/' + f)]
+    files = [f for f in listdir(folder) if isfile(os.path.join(folder, f))]
 
     if len(files) == 0:
         logging.error('No files detected in chosen folder.')

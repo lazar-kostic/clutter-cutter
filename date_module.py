@@ -12,7 +12,7 @@ def organize_by_date(folder, files, selected):
 
     logging.info('In this mode, the files will be split up into multiple folders depending on their date ' + (
         'created' if selected == 2 else 'modified') + '.\n' 
-        'The files can be organized into separate folders for each year, month, day, weekday (Monday - Sunday) or quarter. Please select between:')
+        'The files can be organized into separate folders for each year, month, day, weekday (Monday - Sunday) or quarter. Please select between:\n')
 
     sorting_options = ['Group by year', 'Group by month', 'Group by day', 'Group by weekday', 'Group by quarters']
     sorting_formats = ['%Y', '%B', '%d']
@@ -52,7 +52,7 @@ def organize_by_date(folder, files, selected):
                 os.mkdir(dest_folder)
                 logging.info('Created folder: ' + dest_folder)
                 shutil.move(os.path.join(folder, files[i]), dest_path)
-                logging.info('Moved file: ' + files[i] + 'to ' + dest_folder)
+                logging.info('Moved file: ' + files[i] + ' to ' + dest_folder)
             except shutil.Error as e:
                 logging.error(f"Error moving file {files[i]}: {e}")
                 choice = input('Do you want to continue? (y/n): ')
@@ -63,7 +63,7 @@ def organize_by_date(folder, files, selected):
         else:
             try:
                 shutil.move(os.path.join(folder, files[i]), dest_path)
-                logging.info('Moved file: ' + files[i] + 'to ' + dest_folder)
+                logging.info('Moved file: ' + files[i] + ' to ' + dest_folder)
             except shutil.Error as e:
                 logging.error(f"Error moving file {files[i]}: {e}")
                 choice = input('Do you want to continue? (y/n): ')
@@ -72,5 +72,5 @@ def organize_by_date(folder, files, selected):
                 else:
                     continue
 
-        logging.info('Files organized by date.')
-        return True, 'No errors'
+    logging.info('Files organized by date.')
+    return True, 'No errors'

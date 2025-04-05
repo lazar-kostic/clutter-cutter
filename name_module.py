@@ -60,7 +60,7 @@ def organize_by_name(folder, files):
                             return False, 'Canceled by user'
                 try:
                     shutil.move(os.path.join(folder, f), folder_name)
-                    logging.info('Moved file: ' + f + 'to folder ' + folder_name)
+                    logging.info('Moved file: ' + f + ' to folder ' + folder_name)
                 except shutil.Error as e:
                     logging.error(f"Error moving file {f}: {e}")
                     choice = input('Do you want to continue? (y/n): ')
