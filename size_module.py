@@ -1,19 +1,20 @@
-def organize_by_size(folder, files):
+def organize_by_size(folder, files, args = None):
     """
     Organizes files into folders based on their size.
     :param folder: The folder where the files are located.
     :param files: A list of file names to be organized.
+    :param args: User choices and required arguments for each option, if passed through the command line.
     """
 
     import os, shutil, logging
-    from helper_functions import safe_input, convert_to_bytes
+    from helper_functions import safe_input, convert_to_bytes, in_range
 
     logging.info(
-        'In this mode, the files will be split up into multiple folders depending on their size. You can customize both the number of folders to organize them into, as well as\n'
+        'In this mode, the files will be split up into multiple folders depending on their size. You can customize both the number of folders to organize them into, as well as'
         'the maximum file size for each folder. For example, you could create 3 folders, one for files up to 50MB, second for files up to 200MB, and third for files up to 1GB.')
 
     # Stores the file sizes in bytes, in the same order as the 'files' list
-    file_sizes = []
+    file_sizes, arg_counter = [], 0
     for f in files:
         try:
             file_sizes.append(os.path.getsize(os.path.join(folder, f)))
@@ -26,16 +27,28 @@ def organize_by_size(folder, files):
                 continue
 
     # Stores the number of folders to split files into
-    num_folders = safe_input(2, 100, 'How many folders would you like to organize the files into?\n')
+    if args:
+        num_folders = args[arg_counter]
+        if not in_range(num_folders, 2, 100):
+            logging.error('The provided choice for the number of folders is invalid.\n')
+            num_folders = safe_input(2, 100, 'How many folders would you like to organize the files into?\n')
+        num_folders = int(num_folders)
+        arg_counter += 1
+    else:
+        num_folders = safe_input(2, 100, 'How many folders would you like to organize the files into?\n')
 
     # Stores the maximum file sizes allowed in each folder, in bytes
-    logging.info(
-        'Next, please enter the maximum size for the files in each folder, followed by the unit without spaces (e.g. 100MB, 1GB). If you skip the input for the last folder,\n'
+    if not args: logging.info(
+        'Next, please enter the maximum size for the files in each folder, followed by the unit without spaces (e.g. 100MB, 1GB). If you skip the input for the last folder, '
         'all files exceeding the maximum size of all other folders will be stored into the last folder.')
     sizes, counter = [], 0
     while counter < num_folders:
         while True:
-            size = input(f'Size for folder {counter + 1}: ')
+            if args:
+                size = args[arg_counter]
+                arg_counter += 1
+            else:
+                size = input(f'Size for folder {counter + 1}: ')
             converted_size = convert_to_bytes(size)
             if converted_size == -1:
                 if counter == num_folders - 1:
@@ -44,6 +57,8 @@ def organize_by_size(folder, files):
                     break
                 else:
                     logging.error('Invalid size. Please enter a valid size.')
+                    if args:
+                        logging.error('The provided file size is invalid. Please change it to the correct format and restart the program.')
             else:
                 break
 

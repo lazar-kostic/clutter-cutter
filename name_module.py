@@ -1,18 +1,30 @@
-def organize_by_name(folder, files):
+def organize_by_name(folder, files, args = None):
     """
     Organizes files by their name. The user can choose to organize the files by the first character, a chosen prefix, suffix, keyword, regex, or name length.
     :param folder: The folder where the files are located.
     :param files: A list of file names to be organized.
+    :param args: User choices and required arguments for each option, if passed through the command line.
     """
 
     import os, shutil, re, logging
-    from helper_functions import choose_option, valid_folder_name
+    from helper_functions import choose_option, valid_folder_name, in_range
 
-    logging.info('In this mode, the files will be split up into multiple folders depending on their name. Sort by:\n')
-    options=['First character', 'Chosen prefix', 'Chosen suffix', 'Chosen keyword', 'Chosen regex', 'Name length']
-    selected_inner = choose_option(options)
+    if not args: logging.info('In this mode, the files will be split up into multiple folders depending on their name. Sort by:\n')
 
-    if selected_inner in range(1, len(options)):
+    arg_counter = 0
+    sorting_options=['First character', 'Chosen prefix', 'Chosen suffix', 'Chosen keyword', 'Chosen regex', 'Name length']
+
+    if args:
+        selected_inner = args[arg_counter]
+        if not in_range(selected_inner, 1, len(sorting_options)):
+            logging.error('The provided choice for the sorting option is invalid.\n')
+            selected_inner = choose_option(sorting_options)
+        selected_inner = int(selected_inner)
+        arg_counter += 1
+    else:
+        selected_inner = choose_option(sorting_options)
+
+    if selected_inner in range(1, len(sorting_options)):
         if selected_inner == 1:
             for f in files:
                 try:
@@ -33,9 +45,17 @@ def organize_by_name(folder, files):
         else:
             string, regex = '', ''
             if selected_inner < 5:
-                string = valid_folder_name('Please enter the ' + ('prefix' if selected_inner == 2 else 'suffix' if selected_inner == 3 else 'keyword') + ' you wish to use:\n')
+                if args:
+                    string = args[arg_counter]
+                    arg_counter += 1
+                else:
+                    string = valid_folder_name('Please enter the ' + ('prefix' if selected_inner == 2 else 'suffix' if selected_inner == 3 else 'keyword') + ' you wish to use:\n')
             else:
-                regex = input('Please enter the regex: ')
+                if args:
+                    regex = args[arg_counter]
+                    arg_counter += 1
+                else:
+                    regex = input('Please enter the regex: ')
 
             for f in files:
                 if selected_inner == 2 and f.startswith(string):

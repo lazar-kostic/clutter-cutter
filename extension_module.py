@@ -1,18 +1,19 @@
-def organize_by_extension(folder, files):
+def organize_by_extension(folder, files, args = None):
     """
     Organizes files in the specified folder by their extensions. The user can choose to organize files into separate folders for each extension or based on their type (photos, videos, documents, etc.).
     :param folder: The folder where the files are located.
     :param files: A list of file names to be organized.
+    :param args: User choices and required arguments for each option, if passed through the command line.
     """
 
     import os, shutil, logging
-    from helper_functions import choose_option, extract_extension
+    from helper_functions import choose_option, extract_extension, in_range
 
-    logging.info('In this mode, the files will be split up into multiple folders depending on their extension. You can choose between organizing files into separate folders for each different\n'
+    if not args: logging.info('In this mode, the files will be split up into multiple folders depending on their extension. You can choose between organizing files into separate folders for each different '
           'extension found (e. g. "png", "mp4", "pdf"), and organizing them into folders based on their type (e. g. photos, videos, documents).')
 
-    folder_name = None
-    options = ['Separately for each extension', 'Based on type (photos, videos, documents...)']
+    folder_name, arg_counter = None, 0
+    sorting_options = ['Separately for each extension', 'Based on type (photos, videos, documents...)']
     groups = {
         'photos': ['png', 'jpg', 'jpeg', 'gif', 'bmp'],
         'videos': ['mp4', 'avi', 'mov', 'mkv'],
@@ -21,7 +22,15 @@ def organize_by_extension(folder, files):
         'archives': ['zip', 'rar', 'tar', 'gz']
     }
 
-    selected_inner = choose_option(options)
+    if args:
+        selected_inner = args[arg_counter]
+        if not in_range(selected_inner, 1, len(sorting_options)):
+            logging.error('The provided choice for the sorting option is invalid.\n')
+            selected_inner = choose_option(sorting_options)
+        selected_inner = int(selected_inner)
+        arg_counter += 1
+    else:
+        selected_inner = choose_option(sorting_options)
 
     # Create folders for each extension, and organize files into them
     for f in files:

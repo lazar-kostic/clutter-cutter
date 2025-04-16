@@ -1,24 +1,34 @@
-def organize_by_date(folder, files, selected):
+def organize_by_date(folder, files, selected, args = None):
     """
     Organizes files by their date created or modified. The user can choose to organize the files by year, month, day, weekday, or quarter.
     :param folder: The folder where the files are located.
     :param files: A list of file names to be organized.
     :param selected: The selected option for organizing files (2 for date created, 3 for date modified).
+    :param args: User choices and required arguments for each option, if passed through the command line.
     """
 
     import os, shutil, time, logging
     from datetime import datetime
-    from helper_functions import choose_option, convert_to_quarter
+    from helper_functions import choose_option, convert_to_quarter, in_range
 
-    logging.info('In this mode, the files will be split up into multiple folders depending on their date ' + (
-        'created' if selected == 2 else 'modified') + '.\n' 
+    if not args: logging.info('In this mode, the files will be split up into multiple folders depending on their date ' + (
+        'created' if selected == 2 else 'modified') + '. ' 
         'The files can be organized into separate folders for each year, month, day, weekday (Monday - Sunday) or quarter. Please select between:\n')
 
+    arg_counter = 0
     sorting_options = ['Group by year', 'Group by month', 'Group by day', 'Group by weekday', 'Group by quarters']
     sorting_formats = ['%Y', '%B', '%d']
-    selected_inner = choose_option(sorting_options)
-
     dates = []
+
+    if args:
+        selected_inner = args[arg_counter]
+        if not in_range(selected_inner, 1, len(sorting_options)):
+            logging.error('The provided choice for the sorting option is invalid.\n')
+            selected_inner = choose_option(sorting_options)
+        selected_inner = int(selected_inner)
+        arg_counter += 1
+    else:
+        selected_inner = choose_option(sorting_options)
 
     for f in files:
         try:

@@ -53,6 +53,11 @@ def safe_input(min_value, max_value, message):
         else:
             logging.error(f'The value entered must be between {min_value} and {max_value}.')
 
+def in_range(num, min_, max_):
+    if not num.isdigit():
+        return False
+    return min_ <= int(num) <= max_
+
 def convert_to_quarter(date):
     quarter = (date.month - 1) // 3 + 1
     return f"{date.year}Q{quarter}"
