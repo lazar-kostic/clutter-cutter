@@ -54,7 +54,7 @@ def safe_input(min_value, max_value, message):
             logging.error(f'The value entered must be between {min_value} and {max_value}.')
 
 def in_range(num, min_, max_):
-    if not num.isdigit():
+    if not str(num).isdigit():
         return False
     return min_ <= int(num) <= max_
 

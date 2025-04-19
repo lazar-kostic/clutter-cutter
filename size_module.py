@@ -1,4 +1,4 @@
-def organize_by_size(folder, files, args = None):
+def organize_by_size(folder, files, user_choices, args = None):
     """
     Organizes files into folders based on their size.
     :param folder: The folder where the files are located.
@@ -9,7 +9,7 @@ def organize_by_size(folder, files, args = None):
     import os, shutil, logging
     from helper_functions import safe_input, convert_to_bytes, in_range
 
-    logging.info(
+    if not args: logging.info(
         'In this mode, the files will be split up into multiple folders depending on their size. You can customize both the number of folders to organize them into, as well as'
         'the maximum file size for each folder. For example, you could create 3 folders, one for files up to 50MB, second for files up to 200MB, and third for files up to 1GB.')
 
@@ -33,9 +33,11 @@ def organize_by_size(folder, files, args = None):
             logging.error('The provided choice for the number of folders is invalid.\n')
             num_folders = safe_input(2, 100, 'How many folders would you like to organize the files into?\n')
         num_folders = int(num_folders)
+        user_choices['arguments'].append(num_folders)
         arg_counter += 1
     else:
         num_folders = safe_input(2, 100, 'How many folders would you like to organize the files into?\n')
+        user_choices['arguments'].append(num_folders)
 
     # Stores the maximum file sizes allowed in each folder, in bytes
     if not args: logging.info(
@@ -53,6 +55,7 @@ def organize_by_size(folder, files, args = None):
             if converted_size == -1:
                 if counter == num_folders - 1:
                     converted_size = float('inf')
+                    user_choices['arguments'].append(size)
                     size = 'Above max limit'
                     break
                 else:
@@ -60,6 +63,7 @@ def organize_by_size(folder, files, args = None):
                     if args:
                         logging.error('The provided file size is invalid. Please change it to the correct format and restart the program.')
             else:
+                user_choices['arguments'].append(size)
                 break
 
         logging.info('Folder max size converted to bytes: ' + str(converted_size))

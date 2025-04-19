@@ -33,6 +33,7 @@ Follow the on-screen prompts to select the folder and the criteria for organizin
 ClutterCutter supports the following command-line arguments:
 
 - `--d` or `--directory`: Specifies the path to the directory to be organized. If the path includes empty characters, it should be wrapped in quotes, e.g. "C:\Downloads\Test Folder".
+- `--c` or `--config`: Specifies the path to the configuration file. By default, the value is `config.json`.
 - `--m` or `--mode`: Specifies the organizing mode. Options are:
   - `size`: Organize files by size.
   - `date_created`: Organize files by creation date.
@@ -64,21 +65,34 @@ python main.py --d /path/to/directory --m name --a 2 _
 ```
 Where '2' is the second sorting option for organizing by name (sorting by prefix), and '_' is the prefix.
 
-## Logging
+## Configuration file
+In order to save time when organizing files the same way, you can also use a configuration file.
+- By default, the script will look for a `config.json` file inside its own folder. The folder's location can also be specified using the command-line arguments.
+- You can combine command-line arguments and a configuration file, in which case the CLA are given priority.
+- If no configuration file is found, the script will use the provided command-line arguments or run in interactive mode.
+- Upon successfully organizing files, the script will also offer to save the settings used to a valid configuration file for you.
 
-The script uses the `logging` module to log messages. Logs will be displayed in the console with timestamps and log levels.
+### Configuration file format
+The configuration file format is identical to the format used when specifying command-line arguments.
+```json
+{
+  "directory": "example\\directory",
+  "mode": "mode_name",
+  "arguments": ["arg1", "arg2", "..."]
+}
+```
 
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## Planned Features
-- Configuration file support
 - Undo functionality
 - Preview mode
 - Progress bars
 - Recursive option
 - Better console UI
+- Configuration file support ✅
 - Command-line arguments ✅
 
 ## License

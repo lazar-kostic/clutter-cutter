@@ -1,4 +1,4 @@
-def organize_by_date(folder, files, selected, args = None):
+def organize_by_date(folder, files, selected, user_choices, args = None):
     """
     Organizes files by their date created or modified. The user can choose to organize the files by year, month, day, weekday, or quarter.
     :param folder: The folder where the files are located.
@@ -26,9 +26,11 @@ def organize_by_date(folder, files, selected, args = None):
             logging.error('The provided choice for the sorting option is invalid.\n')
             selected_inner = choose_option(sorting_options)
         selected_inner = int(selected_inner)
+        user_choices['arguments'].append(selected_inner)
         arg_counter += 1
     else:
         selected_inner = choose_option(sorting_options)
+        user_choices['arguments'].append(selected_inner)
 
     for f in files:
         try:

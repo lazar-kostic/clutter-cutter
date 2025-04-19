@@ -1,4 +1,4 @@
-def organize_by_extension(folder, files, args = None):
+def organize_by_extension(folder, files, user_choices, args = None):
     """
     Organizes files in the specified folder by their extensions. The user can choose to organize files into separate folders for each extension or based on their type (photos, videos, documents, etc.).
     :param folder: The folder where the files are located.
@@ -28,9 +28,11 @@ def organize_by_extension(folder, files, args = None):
             logging.error('The provided choice for the sorting option is invalid.\n')
             selected_inner = choose_option(sorting_options)
         selected_inner = int(selected_inner)
+        user_choices['arguments'].append(selected_inner)
         arg_counter += 1
     else:
         selected_inner = choose_option(sorting_options)
+        user_choices['arguments'].append(selected_inner)
 
     # Create folders for each extension, and organize files into them
     for f in files:

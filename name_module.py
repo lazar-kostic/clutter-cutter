@@ -1,4 +1,4 @@
-def organize_by_name(folder, files, args = None):
+def organize_by_name(folder, files, user_choices, args = None):
     """
     Organizes files by their name. The user can choose to organize the files by the first character, a chosen prefix, suffix, keyword, regex, or name length.
     :param folder: The folder where the files are located.
@@ -20,9 +20,11 @@ def organize_by_name(folder, files, args = None):
             logging.error('The provided choice for the sorting option is invalid.\n')
             selected_inner = choose_option(sorting_options)
         selected_inner = int(selected_inner)
+        user_choices['arguments'].append(selected_inner)
         arg_counter += 1
     else:
         selected_inner = choose_option(sorting_options)
+        user_choices['arguments'].append(selected_inner)
 
     if selected_inner in range(1, len(sorting_options)):
         if selected_inner == 1:
@@ -47,15 +49,19 @@ def organize_by_name(folder, files, args = None):
             if selected_inner < 5:
                 if args:
                     string = args[arg_counter]
+                    user_choices['arguments'].append(string)
                     arg_counter += 1
                 else:
                     string = valid_folder_name('Please enter the ' + ('prefix' if selected_inner == 2 else 'suffix' if selected_inner == 3 else 'keyword') + ' you wish to use:\n')
+                    user_choices['arguments'].append(string)
             else:
                 if args:
                     regex = args[arg_counter]
+                    user_choices['arguments'].append(regex)
                     arg_counter += 1
                 else:
                     regex = input('Please enter the regex: ')
+                    user_choices['arguments'].append(regex)
 
             for f in files:
                 if selected_inner == 2 and f.startswith(string):
