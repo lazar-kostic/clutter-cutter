@@ -1,4 +1,5 @@
-# ClutterCutter
+# ClutterCutter 
+![cluttercutter_logo_small](https://github.com/user-attachments/assets/e77b8056-db32-4cab-8ec4-f9c138e02cd2)
 
 A Python utility to organize files in a directory based on various criteria like size, date, name, and extension.
 
