@@ -4,6 +4,13 @@ A Python utility to organize files in a directory based on various criteria like
 
 ## Features
 
+- Multiple organization modes - easily separate files based on any criteria, with custom rules
+- Command-line arguments and configuration file support for repeated organizing
+- Recursive mode for organizing files in subdirectories with a single run
+- Detailed instructions and feedback during the entire organizing process
+- Logging of performed operations (using the `logger` module)
+
+### Organization modes:
 - Organize files by size (customizable size brackets)
 - Organize files by date created or modified (year, month, day, weekday, quarter)
 - Organize files by name (first character, prefix, suffix, keyword, regex, length)
@@ -12,11 +19,14 @@ A Python utility to organize files in a directory based on various criteria like
 
 ## Installation
 
+You can install ClutterCutter by cloning the repository:
+
 ```bash
-# Clone the repository
-git clone https://github.com/lazar-kostic/clutter-cutter.git
-cd clutter-cutter
+git clone https://github.com/yourusername/ClutterCutter.git
+cd ClutterCutter
 ```
+
+ClutterCutter requires Python 3.7 or higher. It uses only standard library modules, so no additional dependencies are needed.
 
 ## Usage
 
@@ -33,6 +43,7 @@ Follow the on-screen prompts to select the folder and the criteria for organizin
 ClutterCutter supports the following command-line arguments:
 
 - `--d` or `--directory`: Specifies the path to the directory to be organized. If the path includes empty characters, it should be wrapped in quotes, e.g. "C:\Downloads\Test Folder".
+- `--r` or `--recursive`: Enables recursive mode (files in each subdirectory will also be organized)
 - `--c` or `--config`: Specifies the path to the configuration file. By default, the value is `config.json`.
 - `--m` or `--mode`: Specifies the organizing mode. Options are:
   - `size`: Organize files by size.
@@ -48,9 +59,9 @@ python main.py --d /path/to/directory --m size --a 3 100MB 500MB 1GB
 ```
 Where '3' is the number of folders to organize the files into, followed by the maximum size for files in each folder.
 
-### Organize files in the specified directory by creation date
+### Organize files in the specified directory by creation date, using recursive mode
 ```
-python main.py --d /path/to/directory --m date_created
+python main.py --d /path/to/directory --r --m date_created
 ```
 Since there are no arguments in the command, the script will prompt you for them when needed.
 
@@ -76,9 +87,12 @@ In order to save time when organizing files the same way, you can also use a con
 The configuration file format is identical to the format used when specifying command-line arguments.
 ```json
 {
-  "directory": "example\\directory",
-  "mode": "mode_name",
-  "arguments": ["arg1", "arg2", "..."]
+    'directory': 'example\\directory',
+    'options': {
+        'recursive': True
+    },
+    'mode': 'mode_name',
+    'arguments': ["arg1", "arg2", "..."]
 }
 ```
 
@@ -90,10 +104,10 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 - Undo functionality
 - Preview mode
 - Progress bars
-- Recursive option
 - Better console UI
-- Configuration file support ✅
-- Command-line arguments ✅
+- Recursive option - Since v1.1.0 ✅
+- Configuration file support - Since v1.0.2 ✅ 
+- Command-line arguments - Since v1.0.1 ✅ 
 
 ## License
 
