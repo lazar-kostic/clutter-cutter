@@ -1,19 +1,22 @@
 # Libraries
-import logging, os, argparse, json
-from os.path import isfile
-from os import listdir
+import logging, argparse, json
 
 # Modules
-from size_module import organize_by_size
-from date_module import organize_by_date
-from name_module import organize_by_name
-from extension_module import organize_by_extension
-from helper_functions import choose_option, select_folder
+from utils import choose_mode, select_folder
+from FileSystemNode import build_filesystem_tree, build_shallow_filesystem_tree, print_tree
+from organizers import DateOrganizer, SizeOrganizer, NameOrganizer, ExtensionOrganizer
 
 # Variables
-options = ['File size', 'Date created', 'Date modified', 'File name', 'Extension']
-options_short = ['size', 'date_created', 'date_modified', 'name', 'extension']
-user_choices = {}
+settings = {
+    'directory': None,
+    'options': {
+        'recursive': None
+    },
+    'mode': None,
+    'arguments': None
+}
+modes = ['File size', 'Date created', 'Date modified', 'File name', 'Extension']
+modes_short = ['size', 'date_created', 'date_modified', 'name', 'extension']
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 # Argparse setup
@@ -28,94 +31,94 @@ parser.add_argument('--m', '--mode', type=str, choices=['size', 'date_created', 
 parser.add_argument('--a', '--arguments', nargs='+', help='Arguments, only if organizing mode is specified using --m or --mode')
 args = parser.parse_args()
 
-# Main function
-if __name__ == '__main__':
-    logging.info('ClutterCutter v.1.0.2')
+def load_from_cla():
+    try:
+        if args.d:
+            settings['directory'] = args.d
+        if args.r:
+            settings['options']['recursive'] = args.r
+        if args.m:
+            settings['mode'] = args.m
+        if args.a:
+            settings['arguments'] = args.a
+    except AttributeError:
+        logging.error('The provided arguments are invalid.')
 
+def load_from_config_file():
     try:
         with open(args.c, 'r', encoding='utf-8') as config_file:
-            config = json.load(config_file)
+            for key, value in json.load(config_file).items():
+                #Avoid overwriting settings parsed from CLA
+                if not settings[key]:
+                    settings[key] = value
     except FileNotFoundError:
-        config = {'directory': None}
         logging.warning('Configuration file not found.')
+    except PermissionError:
+        logging.warning('Permission to open configuration file was denied.')
 
-    folder = args.d if args.d else config["directory"]
-
-    if not folder:
+def manual_input():
+    if not settings['directory']:
         logging.info('To begin, please select the folder which contains the files you wish to organize.')
-        folder = select_folder()
-        if folder == '':
+        folder_name = select_folder()
+        if not folder_name:
+            logging.error('User canceled action.')
             exit(1)
-        user_choices['directory'] = folder
+        settings['directory'] = folder_name
     else:
         logging.info('Running using the directory provided in the ' +  ('console argument(s).' if args.d else 'config file.'))
-        user_choices['directory'] = folder
 
-    try:
-        files = [f for f in listdir(folder) if isfile(os.path.join(folder, f))]
-        if len(files) == 0:
-            logging.error('No files detected in chosen folder.')
-            exit(1)
-    except FileNotFoundError:
-        logging.error('No such file or directory.')
+# Main function
+if __name__ == '__main__':
+    logging.info('ClutterCutter v.1.1.0')
+
+    # Load information from the CLA first, if provided
+    load_from_cla()
+
+    # Load provided data from the config file into the settings dictionary
+    load_from_config_file()
+
+    # If directory is not provided through CLA or config file, prompt the user for it
+    manual_input()
+
+    # Scan either all the files in the root directory, or recursively scan all subdirectories too if using recursive mode
+    if settings['options']['recursive']:
+        root_node, has_files = build_filesystem_tree(settings['directory'])
+    else:
+        root_node, has_files = build_shallow_filesystem_tree(settings['directory'])
+
+    # If there are no children (files) in the provided root directory
+    if not has_files:
+        logging.error('The provided directory contains no files.')
         exit(1)
 
-    logging.info('The following files were detected in your chosen folder:')
-    for f in files:
-        logging.info(f)
+    logging.info('The following files were found in the provided directory:')
+    print_tree(root_node)
 
-    user_choices['arguments'] = []
-
-    if args.m:
-        logging.info('Running using the provided arguments.')
-        user_choices['mode'] = args.m
-        if args.m == 'size':
-            organize_by_size(folder, files, user_choices, args.a)
-
-        if args.m == 'date_created' or args.m == 'date_modified':
-            organize_by_date(folder, files, args.m, user_choices, args.a)
-
-        if args.m == 'name':
-            organize_by_name(folder, files, user_choices, args.a)
-
-        if args.m == 'extension':
-            organize_by_extension(folder, files, user_choices, args.a)
-
-    elif config:
-        logging.info('Running using the configuration file.')
-        user_choices['mode'] = config['mode']
-        if config['mode'] == 'size':
-            organize_by_size(folder, files, user_choices, config['arguments'])
-
-        if config['mode'] == 'date_created' or config['mode'] == 'date_modified':
-            organize_by_date(folder, files, config['mode'], user_choices, config['arguments'])
-
-        if config['mode'] == 'name':
-            organize_by_name(folder, files, user_choices, config['arguments'])
-
-        if config['mode'] == 'extension':
-            organize_by_extension(folder, files, user_choices, config['arguments'])
-
-    else:
+    # If the mode is not provided through CLA or config file, prompt the user for it
+    if not settings['mode']:
         logging.info('Please select your desired mode for organizing files. Instructions and explanations for each mode will be shown after selection. You may choose between:\n')
-        selected = choose_option(options)
-        user_choices['mode'] = options[selected - 1]
+        settings['mode'] = choose_mode(modes)
 
-        # Organizing
-        if selected == 1:
-            organize_by_size(folder, files, user_choices)
+    # Organizing
+    organizer_classes = {
+        1: SizeOrganizer,
+        2: lambda root, args: DateOrganizer(root, 2, args),
+        3: lambda root, args: DateOrganizer(root, 3, args),
+        4: NameOrganizer,
+        5: ExtensionOrganizer
+    }
 
-        if selected == 2 or selected == 3:
-            organize_by_date(folder, files, selected, user_choices)
-
-        if selected == 4:
-            organize_by_name(folder, files, user_choices)
-
-        if selected == 5:
-            organize_by_extension(folder, files, user_choices)
+    organizer = None
+    if settings['mode'] in organizer_classes:
+        if settings['mode'] in [2, 3]:
+            organizer = organizer_classes[settings['mode']](root_node, args.a)
+            organizer.run_all()
+        else:
+            organizer = organizer_classes[settings['mode']](root_node, args.a)
+            organizer.run_all()
 
     choice = input('Would you like to save this configuration to a configuration file? (y/n): ')
     if choice == 'y':
         with open('config.json', 'w', encoding='utf-8') as config_file:
-            json.dump(user_choices, config_file, ensure_ascii=False, indent=4)
+            json.dump(settings, config_file, ensure_ascii=False, indent=4)
 
