@@ -87,12 +87,12 @@ In order to save time when organizing files the same way, you can also use a con
 The configuration file format is identical to the format used when specifying command-line arguments.
 ```json
 {
-    'directory': 'example\\directory',
-    'options': {
-        'recursive': True
+    "directory": "example\\directory",
+    "options": {
+        "recursive": true
     },
-    'mode': 'mode_name',
-    'arguments': ["arg1", "arg2", "..."]
+    "mode": "mode_name",
+    "arguments": ["arg1", "arg2", "..."]
 }
 ```
 
