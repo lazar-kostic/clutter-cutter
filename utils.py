@@ -1,4 +1,5 @@
 import re, os, logging
+import shutil
 from tkinter import filedialog
 
 def select_folder():
@@ -8,13 +9,43 @@ def select_folder():
     )
     return folder_temp
 
-def choose_option(list_of_options):
-    for i in range(len(list_of_options)):
-        logging.info(f'({i + 1}) {list_of_options[i]}')
-    num = input('Please enter the number in front of your desired option:\n')
-    if not num.isdigit() or int(num) < 1 or int(num) > len(list_of_options):
-        return -1
-    return int(num)
+def choose_mode(list_of_modes):
+    for i in range(len(list_of_modes)):
+        logging.info(f'({i + 1}) {list_of_modes[i]}')
+    num = safe_input(1, len(list_of_modes), 'Please enter the number in front of your desired option:\n')
+    return num
+
+def create_folder(folder_name):
+    try:
+        os.mkdir(folder_name)
+        return folder_name
+    except FileExistsError:
+        logging.error(f'Folder {folder_name} already exists.')
+        folder_temp = folder_name + '(1)'
+        logging.warning(f'Renaming folder to {folder_temp}.')
+        return folder_temp
+    except PermissionError:
+        logging.error(f'Could not create folder {folder_name} - no permission.')
+        exit(1)
+    except OSError:
+        logging.error(f'Could not create folder {folder_name} - OS Error.')
+        exit(1)
+
+def move_file(source, destination):
+    if os.path.exists(destination):
+        logging.warning(f'File {os.path.basename(source)} already exists in {destination}. Skipping.')
+        return False
+    try:
+        shutil.move(source, destination)
+        print(f'File {os.path.basename(source)} moved to {destination}.')
+        return True
+    except shutil.Error as e:
+        logging.error(f'Error moving file {os.path.basename(source)}: {e}')
+        choice = input('Do you want to continue? (y/n): ')
+        if choice.lower() != 'y':
+            return False
+        return True
+
 
 def convert_to_bytes(size_):
     size_ = size_.upper().strip()
@@ -61,10 +92,6 @@ def in_range(num, min_, max_):
 def convert_to_quarter(date):
     quarter = (date.month - 1) // 3 + 1
     return f"{date.year}Q{quarter}"
-
-# Currently unused
-def clear_console():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 def extract_extension(file_name):
     ext = os.path.splitext(file_name)[1]
